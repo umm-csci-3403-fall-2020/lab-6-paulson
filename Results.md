@@ -1,11 +1,4 @@
 # Experimental results
+I used the prewritten bash code and executed it on my Ubunut subsystem because I was testing my bats code there. So, I started with 3, then 10, and then 20 clients. All these took about a second, with 20 taking 2 seconds. I used the words.txt file which is fairly large. Then I passed it 50 clients and it took about 4 seconds. Im sure the way I did it is bad for memory usage, and maybe the file I used also wasn't big enough, but I had multiple programs and even spotify running in the background and it didn't even phase my system. No fans or extra heat production from my CPU either. Could probably push it and do a huge file, but didn't get around to it.
 
-_Briefly (you don't need to write a lot) document the results of your
-experiments with throwing a bunch of clients at your server, as described
-in the lab write-up. You should probably delete or incorporate this text
-into your write-up._
-
-_You should indicate here what variations you tried (every connection gets
-a new thread, using a threadpool of size X, etc., etc.), and what the
-results were like when you spun up a bunch of threads that send
-decent-sized files to the server._
+I didn't use a thread pool. I just wrote it simply and had it make a new thread for every client. My system is a laptop with 4 cores and 8gb of physical ram. 
