@@ -16,9 +16,14 @@ public class EchoClient {
 
         try {
             Socket socket = new Socket(server, portNumber);
+            OutputStream socketOut = socket.getOutputStream();
+            InputStream socketIn = socket.getInputStream();
 
-            Thread outputWriter = new Writer(socket);
-            Thread inputReader = new Reader(socket);
+            Thread outputWriter = new Writer(socket, socketIn);
+            Thread inputReader = new Reader(socket, socketOut);
+
+            outputWriter.start();
+            inputReader.start();
 
         } catch (ConnectException ce) {
             System.out.println("We were unable to connect to " + server);
@@ -32,18 +37,18 @@ public class EchoClient {
     public static class Reader extends Thread implements Runnable{
         //Only for reading from stdin and writing to socket
         private final Socket socket;
+        private OutputStream out;
 
-        public Reader(Socket s){
+        public Reader(Socket s, OutputStream o){
             this.socket = s;
+            this.out = o;
         }
 
         public void run() {
             try{
-                OutputStream socketOut = socket.getOutputStream();
-
                 int data;
                 while((data = System.in.read()) != -1){
-                    socketOut.write(data);
+                    out.write(data);
                 }
                 socket.shutdownOutput();
             }
@@ -54,17 +59,17 @@ public class EchoClient {
     public static class Writer extends Thread implements Runnable{
         //Only for reading from socket and writing to stdout
         private final Socket socket;
+        private InputStream in;
 
-        public Writer(Socket s) {
+        public Writer(Socket s, InputStream i) {
             this.socket = s;
+            this.in = i;
         }
 
         public void run(){
             try{
-            InputStream socketIn = socket.getInputStream();
-
                 int data;
-                while((data = socketIn.read()) != -1) {
+                while((data = in.read()) != -1) {
                 System.out.write(data);
                 }
                 System.out.flush();
