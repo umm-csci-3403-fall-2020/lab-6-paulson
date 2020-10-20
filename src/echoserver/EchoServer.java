@@ -11,42 +11,48 @@ public class EchoServer {
     }
 
     private void start() throws IOException, InterruptedException {
-            ServerSocket sock = new ServerSocket(portNumber);
+        ServerSocket sock = new ServerSocket(portNumber);
 
-            while (true) {
+        while (true) {
 
-                Socket client = sock.accept();
-                System.out.println("Connected");
+            Socket client = sock.accept();
 
-                Thread ClientHandler = new ClientHandler(client);
-                ClientHandler.start();
+            System.out.println("Connected");
+            OutputStream output = client.getOutputStream();
+            InputStream input = client.getInputStream();
+            Thread ClientHandler = new ClientHandler(client, output, input);
+            ClientHandler.start();
 
-            }
+        }
     }
 
     public static class ClientHandler extends Thread {
         Socket client;
+        OutputStream output;
+        InputStream input;
 
-        public ClientHandler(Socket c) {
+        public ClientHandler(Socket c, OutputStream o, InputStream i) {
             this.client = c;
+            this.output = o;
+            this.input = i;
         }
 
         public void run() {
             try {
-                while (true) {
-                    OutputStream output = client.getOutputStream();
-                    InputStream input = client.getInputStream();
-
                     int stuff;
-                    while((stuff = input.read()) != -1) {
+                    while ((stuff = input.read()) != -1) {
                         output.write(stuff);
-
-                        this.client.close();
-                        System.out.println("Disconnected");
                     }
-                }
+
+                    output.flush();
+                    client.shutdownOutput();
+                    System.out.println("Disconnected");
+
             } catch (IOException ioe) {
                 ioe.printStackTrace();
             }
         }
     }
+}
+
+
